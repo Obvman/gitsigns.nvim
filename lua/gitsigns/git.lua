@@ -234,8 +234,10 @@ local function process_abbrev_head(gitdir, head_str, path, cmd)
 end
 
 local has_cygpath = jit and jit.os == 'Windows' and vim.fn.executable('cygpath') == 1
+local has_wslpath = vim.env.WSL_DISTRO_NAME and vim.env.WSL_DISTRO_NAME ~= ''
 
 local cygpath_convert
+local wslpath_convert
 
 if has_cygpath then
    cygpath_convert = function(path)
@@ -243,11 +245,19 @@ if has_cygpath then
    end
 end
 
+if has_wslpath then
+   wslpath_convert = function(path)
+      return M.command({ path }, { command = 'wslpath' })[1]
+   end
+end
+
 local function normalize_path(path)
-   if path and has_cygpath and not uv.fs_stat(path) then
-
-
-      path = cygpath_convert(path)
+   if path and not uv.fs_stat(path) then
+      if has_cygpath then
+         path = cygpath_convert(path)
+      elseif has_wslpath then
+         path = wslpath_convert(path)
+      end
    end
    return path
 end
