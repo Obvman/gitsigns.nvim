@@ -59,9 +59,7 @@ local function apply_win_signs(bufnr, hunks, top, bot, clear)
 
 
 
-
-
-   if clear and hunks[1] then
+   if clear and hunks and hunks[1] then
       signs:add(bufnr, gs_hunks.calc_signs(hunks[1], hunks[1].added.start, hunks[1].added.start))
    end
 
